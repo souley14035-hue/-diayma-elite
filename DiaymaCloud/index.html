@@ -234,6 +234,79 @@
             <button class="btn btn-sec" onclick="logout()" style="color:var(--r); border-color:rgba(244,63,94,0.3); padding:15px; border-radius:20px; font-size:0.8rem">
                 <i data-lucide="log-out" style="width:16px"></i> Déconnecter cet appareil
             </button>
-        </div>
+    </div>
+
+    <script>
+        // Detection automatique du SHOP ID via URL (?shop=XXXX)
+        const urlParams = new URLSearchParams(window.location.search);
+        let SHOP_ID = urlParams.get('shop') || "7A31E0AA"; 
+        
+        // Mise a jour de l'affichage de l'ID si l'élément existe
+        const idDisplay = document.getElementById('p_elite_id');
+        if(idDisplay) idDisplay.innerText = SHOP_ID;
+
+        const login = async () => {
+            const u = document.getElementById('u').value;
+            const p = document.getElementById('p').value;
+            
+            if(!u || !p) {
+                alert("Veuillez remplir tous les champs");
+                return;
+            }
+
+            try {
+                // Pour le mode Cloud, on simule la validation locale 
+                // En production, cela pointerait vers l'API Ngrok ou Cloud
+                console.log("Tentative de connexion pour:", u, "Boutique:", SHOP_ID);
+                
+                // Sauvegarde de session locale
+                localStorage.setItem('tk_elite', btoa(u + ':' + p));
+                localStorage.setItem('shop_elite', SHOP_ID);
+                
+                // Masquer l'écran de login
+                document.getElementById('login-screen').style.display = 'none';
+                lucide.createIcons();
+                
+                alert("Bienvenue " + u + " ! Connexion Elite 2026 réussie.");
+            } catch(e) {
+                alert("Erreur de connexion : " + e.message);
+            }
+        };
+
+        const logout = () => {
+            localStorage.removeItem('tk_elite');
+            location.reload();
+        };
+
+        const v = p => {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            document.getElementById(p).classList.add('active');
+            if(event && event.currentTarget) event.currentTarget.classList.add('active');
+            lucide.createIcons();
+        };
+
+        function showFinSub(s, btn) {
+            document.getElementById('fin-jou').style.display = s === 'jou' ? 'block' : 'none';
+            document.getElementById('fin-cre').style.display = s === 'cre' ? 'block' : 'none';
+            btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        
+        function showGesSub(s, btn) {
+            document.getElementById('ges-emp').style.display = s === 'emp' ? 'block' : 'none';
+            document.getElementById('ges-stk').style.display = s === 'stk' ? 'block' : 'none';
+            btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Auto-login si session active
+        window.onload = () => {
+            if(localStorage.getItem('tk_elite')) {
+                document.getElementById('login-screen').style.display = 'none';
+            }
+            lucide.createIcons();
+        };
+    </script>
 </body>
-</html>
+</html>
